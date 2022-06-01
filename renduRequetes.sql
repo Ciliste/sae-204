@@ -14,6 +14,7 @@ SELECT numClient AS "Numéro", nomClient AS "Nom"
 FROM Client
 ORDER BY nomClient;
 
+/*
  Numéro |     Nom     
 --------+-------------
       7 | Don Devello
@@ -27,6 +28,7 @@ ORDER BY nomClient;
       4 | Poret
       6 | Timable
       1 | Torguesse
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -39,7 +41,7 @@ FROM      Vente v NATURAL JOIN Client c
 GROUP BY  v.numClient, nomClient
 ORDER BY  nbA DESC;
 
-
+/*
  numclient |  nomclient  | nba 
 -----------+-------------+-----
          4 | Poret       |  19
@@ -53,6 +55,7 @@ ORDER BY  nbA DESC;
          9 | Ginal       |   8
          2 | Fissile     |   8
          1 | Torguesse   |   6
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -62,10 +65,11 @@ SELECT SUM(Concerner.prixVente*Concerner.quantite) AS "Chiffre d'affaire"
 FROM Vente NATURAL JOIN Concerner
 WHERE EXTRACT(YEAR FROM Vente.dteVente) = '2021';
 
-
+/*
  Chiffre d affaire 
 -------------------
            54833.6
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -80,7 +84,7 @@ GROUP BY  v.numClient, nomClient
 HAVING    SUM(cnc.prixVente * cnc.quantite) > 50000
 ORDER BY  couta DESC;
 
-
+/*
  numclient |  nomclient  |   couta   
 -----------+-------------+-----------
          4 | Poret       | 129209.55
@@ -91,6 +95,7 @@ ORDER BY  couta DESC;
         10 | Hautine     |   59519.1
          5 | Menvussa    |   56772.3
          3 | Hauraque    |     51684
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -105,7 +110,7 @@ FROM        Concerner NATURAL JOIN Vente
 GROUP BY    EXTRACT( YEAR FROM dteVente)
 ORDER BY    EXTRACT( YEAR FROM dteVente);
 
-
+/*
  annee |   chA    
 -------+----------
   2000 |    34059
@@ -130,6 +135,7 @@ ORDER BY    EXTRACT( YEAR FROM dteVente);
   2019 |    59304
   2020 |    24000
   2021 |  54833.6
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -139,7 +145,7 @@ SELECT DISTINCT Client.numClient, Client.nomClient
 FROM Client NATURAL JOIN Vente NATURAL JOIN Concerner NATURAL JOIN BD NATURAL JOIN Serie
 WHERE Serie.nomSerie = 'Asterix le gaulois';
 
-
+/*
  numclient |  nomclient  
 -----------+-------------
          1 | Torguesse
@@ -153,6 +159,7 @@ WHERE Serie.nomSerie = 'Asterix le gaulois';
          9 | Ginal
         10 | Hautine
         11 | Kament
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -169,11 +176,11 @@ SELECT DISTINCT Client.numClient, Client.nomClient
 FROM            Client NATURAL JOIN Vente NATURAL JOIN Concerner NATURAL JOIN BD NATURAL JOIN Serie
 WHERE           Serie.nomSerie != 'Asterix le gaulois';
 
-
-
+/*
  numclient | nomclient 
 -----------+-----------
          3 | Hauraque
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -201,7 +208,7 @@ ORDER BY
     couta DESC
 LIMIT 5;
 
-
+/*
  Numéro |     Nom     |  Adresse mail   | nbBD |   couta   
 --------+-------------+-----------------+------+-----------
       4 | Poret       | mail@he.fr      | 8816 | 129209.55
@@ -209,6 +216,7 @@ LIMIT 5;
       8 | Ohm         | mail@odie.net   | 6159 |   92865.9
       7 | Don Devello | mail@he.fr      | 5664 |   82909.4
       9 | Ginal       | mail@ange.fr    | 4564 |   66003.9
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -224,7 +232,7 @@ FROM          Editeur NATURAL JOIN Serie NATURAL JOIN Bd NATURAL JOIN Concerner 
 GROUP BY      EXTRACT( YEAR FROM dteVente), nomEditeur
 ORDER BY      EXTRACT( YEAR FROM dteVente), nomEditeur;
 
-
+/*
  annee |       nomediteur       | count 
 -------+------------------------+-------
   2000 | Dargaud                |     3
@@ -281,6 +289,7 @@ ORDER BY      EXTRACT( YEAR FROM dteVente), nomEditeur;
   2021 | Delcourt               |     1
   2021 | Lombard                |     5
   2021 | Vents d Ouest          |     1
+*/
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -303,4 +312,9 @@ GROUP BY
 HAVING
     COUNT(BD.titre) > 10;
 
-SELECT * FROM bdEd10;
+/*
+   Nom   |    Adresse mail    | Nombre BD 
+---------+--------------------+-----------
+ Lombard | info@Lombard.be    |        27
+ Dargaud | contact@dargaud.fr |        49
+*/
