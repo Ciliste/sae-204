@@ -15,6 +15,9 @@ FROM Client
 ORDER BY nomClient;
 
 /*
+
+=>\i rA.sql
+
  Numéro |     Nom     
 --------+-------------
       7 | Don Devello
@@ -42,6 +45,9 @@ GROUP BY  v.numClient, nomClient
 ORDER BY  nbA DESC;
 
 /*
+
+=>\i rB.sql
+
  numclient |  nomclient  | nba 
 -----------+-------------+-----
          4 | Poret       |  19
@@ -66,6 +72,9 @@ FROM Vente NATURAL JOIN Concerner
 WHERE EXTRACT(YEAR FROM Vente.dteVente) = '2021';
 
 /*
+
+=>\i rC.sql
+
  Chiffre d affaire 
 -------------------
            54833.6
@@ -85,6 +94,9 @@ HAVING    SUM(cnc.prixVente * cnc.quantite) > 50000
 ORDER BY  couta DESC;
 
 /*
+
+=>\i rD.sql
+
  numclient |  nomclient  |   couta   
 -----------+-------------+-----------
          4 | Poret       | 129209.55
@@ -111,6 +123,10 @@ GROUP BY    EXTRACT( YEAR FROM dteVente)
 ORDER BY    EXTRACT( YEAR FROM dteVente);
 
 /*
+
+=>\i rE.sql
+=>Select * from CA;
+
  annee |   chA    
 -------+----------
   2000 |    34059
@@ -146,6 +162,9 @@ FROM Client NATURAL JOIN Vente NATURAL JOIN Concerner NATURAL JOIN BD NATURAL JO
 WHERE Serie.nomSerie = 'Asterix le gaulois';
 
 /*
+
+=>\i rF.sql
+
  numclient |  nomclient  
 -----------+-------------
          1 | Torguesse
@@ -177,6 +196,9 @@ FROM            Client NATURAL JOIN Vente NATURAL JOIN Concerner NATURAL JOIN BD
 WHERE           Serie.nomSerie != 'Asterix le gaulois';
 
 /*
+
+=>\i rG.sql
+
  numclient | nomclient 
 -----------+-----------
          3 | Hauraque
@@ -209,6 +231,10 @@ ORDER BY
 LIMIT 5;
 
 /*
+
+=>\i rH.sql
+=>Select * from best5;
+
  Numéro |     Nom     |  Adresse mail   | nbBD |   couta   
 --------+-------------+-----------------+------+-----------
       4 | Poret       | mail@he.fr      | 8816 | 129209.55
@@ -233,6 +259,10 @@ GROUP BY      EXTRACT( YEAR FROM dteVente), nomEditeur
 ORDER BY      EXTRACT( YEAR FROM dteVente), nomEditeur;
 
 /*
+
+=>\i rI.sql
+=>Select * from bdEditeur;
+
  annee |       nomediteur       | count 
 -------+------------------------+-------
   2000 | Dargaud                |     3
@@ -313,6 +343,10 @@ HAVING
     COUNT(BD.titre) > 10;
 
 /*
+
+=>\i rJ.sql
+=>Select * from bdEd10;
+
    Nom   |    Adresse mail    | Nombre BD 
 ---------+--------------------+-----------
  Lombard | info@Lombard.be    |        27
