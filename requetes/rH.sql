@@ -17,6 +17,12 @@ ORDER BY
     couta DESC
 LIMIT 5;
 
-SELECT * FROM best5;
 
-SELECT SUM(quantite) FROM
+
+ Numéro |     Nom     |  Adresse mail   | nbBD |   couta   
+--------+-------------+-----------------+------+-----------
+      4 | Poret       | mail@he.fr      | 8816 | 129209.55
+      6 | Timable     | mail@limelo.com | 6639 |   93406.5
+      8 | Ohm         | mail@odie.net   | 6159 |   92865.9
+      7 | Don Devello | mail@he.fr      | 5664 |   82909.4
+      9 | Ginal       | mail@ange.fr    | 4564 |   66003.9
