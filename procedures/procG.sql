@@ -4,8 +4,8 @@ nombre de BD qu’ils leur ont achetées : les « très bons clients » (plus de
 achats strictement), les « bons clients » (entre 2 et 10 BD), les « mauvais
 clients » (moins ou égal à 2 BD) */
 
-DROP TYPE IF EXISTS CLIENT_CATEG CASCADE;
-CREATE TYPE CLIENT_CATEG AS ( nomClient varchar(20), categ varchar(18) );
+DROP TYPE IF EXISTS categClient CASCADE;
+CREATE TYPE categClient AS ( nomClient varchar(20), categ varchar(18) );
 
 
 
@@ -33,14 +33,14 @@ $$ language plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION getCategClients( un_editeur Editeur.nomEditeur%TYPE )
-    RETURNS SETOF CLIENT_CATEG 
+CREATE OR REPLACE FUNCTION procG( un_editeur Editeur.nomEditeur%TYPE )
+    RETURNS SETOF categClient 
     AS $$
 
 DECLARE
 
     curs         CURSOR FOR SELECT numClient FROM Client;
-    une_categ    CLIENT_CATEG;
+    une_categ    categClient;
     un_nb_dachat numeric;
     un_numClient Client.numClient%TYPE;
 
@@ -73,7 +73,7 @@ BEGIN
 END
 $$ language plpgsql;
 
-select * from getCategClients('Delcourt');
+select * from procG('Delcourt');
 /*
   nomclient  |      categ      
 -------------+-----------------
