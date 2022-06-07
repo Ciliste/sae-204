@@ -72,3 +72,19 @@ BEGIN
     RETURN;
 END
 $$ language plpgsql;
+
+select * from getCategClients('Delcourt');
+/*
+  nomclient  |      categ      
+-------------+-----------------
+ Torguesse   | tres bon client
+ Fissile     | tres bon client
+ Hauraque    | mauvais client
+ Poret       | mauvais client
+ Menvussa    | tres bon client
+ Timable     | tres bon client
+ Don Devello | mauvais client
+ Ohm         | mauvais client
+ Ginal       | mauvais client
+ Hautine     | mauvais client
+ Kament      | mauvais client */
