@@ -13,6 +13,8 @@
 -- de cette BD.
 
 DROP TYPE IF EXISTS typeProcA CASCADE;
+
+
 CREATE TYPE typeProcA AS (
     titre VARCHAR,
     nbVendue NUMERIC
@@ -46,7 +48,8 @@ $$
 LANGUAGE Plpgsql;
 
 /*
-\i procA.sql
+=> \i procA.sql
+=> SELECT * FROM procA(1);
 
                 titre                | nbvendue 
 -------------------------------------+----------
@@ -62,6 +65,7 @@ LANGUAGE Plpgsql;
 
 DROP TYPE     IF EXISTS typeProcB CASCADE;
 DROP FUNCTION IF EXISTS proc_b    CASCADE;
+
 
 CREATE TYPE typeProcB AS ( titre_serie     text,
                            quantite_vendue bigint,
@@ -101,7 +105,8 @@ END
 $$ language plpgsql;
 
 /*
-\i procB.sql
+=> \i procB.sql
+=> SELECT procB('Peter Pan');
 
           proc_b           
 ---------------------------
@@ -123,6 +128,8 @@ $$ language plpgsql;
 -- remplacera les « % » par les noms correspondants.
 
 DROP FUNCTION IF EXISTS procC CASCADE;
+
+
 CREATE OR REPLACE FUNCTION procB(
     nomEdit Editeur.nomEditeur%TYPE, 
     nomAuteurDessinateur Auteur.nomAuteur%TYPE,
@@ -209,7 +216,8 @@ $$
 LANGUAGE Plpgsql;
 
 /*
-\i procC.sql
+=> \i procC.sql
+=> SELECT * FROM procC('Dargaud', 'Uderzo', 'Goscinny');
 
        isbn        |                       titre                       | prixactuel | numtome | numserie | numauteurdessinateur | numauteurscenariste 
 -------------------+---------------------------------------------------+------------+---------+----------+----------------------+---------------------
@@ -250,6 +258,9 @@ LANGUAGE Plpgsql;
 --Si aucun client ne répond à la requête alors on affichera un message
 --d’avertissement ‘Aucun client n’a acheté tous les exemplaires de la série %’, en
 --complétant le ‘ %’ par le nom de la série.
+
+DROP FUNCTION IF EXISTS procD() CASCADE;
+
 
 CREATE OR REPLACE FUNCTION procD ( nomS Serie.nomSerie%TYPE )
     RETURNS setof Client
@@ -304,6 +315,256 @@ BEGIN
         
 END
 $$ language plpgsql;
+
+
+
+SELECT procD('Peter Pan');
+
+/* 
+=> \i procD.sql
+=> SELECT procD('Peter Pan');
+
+                    procd                     
+----------------------------------------------
+ (6,Timable,"06 56 53 01 40",mail@limelo.com)
+*/
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Créer une fonction qui prend en paramètre un nombre nbBD de BD et une année
+-- donnée, et qui renvoie la liste des éditeurs ayant vendu au moins ce nombre de
+-- BD dans l’année en question. Si aucun éditeur ne répond à la requête, le signaler
+-- par un message approprié.
+
+DROP FUNCTION IF EXISTS procE() CASCADE;
+
+
+CREATE OR REPLACE FUNCTION procE(nbBD Concerner.quantite%TYPE, annee VARCHAR)
+RETURNS SETOF Editeur AS
+$$
+DECLARE
+    edit Editeur%ROWTYPE;
+    nbVente Concerner.quantite%TYPE;
+    auMoinsUnEditeur BOOLEAN := false;
+BEGIN
+    FOR edit IN SELECT * FROM Editeur
+    LOOP
+        SELECT 
+            SUM(Concerner.quantite) 
+        INTO 
+            nbVente 
+        FROM 
+            Editeur 
+            NATURAL JOIN 
+            Serie 
+            NATURAL JOIN 
+            BD 
+            NATURAL JOIN 
+            Concerner 
+            NATURAL JOIN
+            Vente
+        WHERE 
+            Editeur.numEditeur = edit.numEditeur 
+            AND 
+            CAST(EXTRACT(YEAR FROM Vente.dteVente) AS VARCHAR) = annee;
+        IF (nbVente >= nbBD) THEN
+            auMoinsUnEditeur = true;
+            RETURN NEXT edit;
+        END IF;
+    END LOOP;
+
+    IF (NOT auMoinsUnEditeur) THEN
+        RAISE NOTICE 'Aucun éditeur ne répond à ces critères...';
+    END IF;
+END
+$$
+LANGUAGE Plpgsql;
+
+/*
+=> \i procE.sql
+=> SELECT * FROM procE(10, '2005');
+
+ numediteur |   nomediteur   |                     adresseediteur                      | numtelediteur  |     mailediteur      
+------------+----------------+---------------------------------------------------------+----------------+----------------------
+          2 | Dargaud        | 57    rue Gaston Tessier,       75019  Paris            | 01 53 26 32 32 | contact@dargaud.fr
+          6 | Bamboo Edition | 290   route des Allognerais     71850 Charnay-les-Mâcon | 03 85 34 99 09 | c.loiselet@bamboo.fr
+          9 | Tonkan         |                                                         |                | 
+(3 lignes)
+*/
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--Écrire une procédure qui prend en paramètre une année donnée, et un nom
+--d’éditeur et qui renvoie le(s) tuple(s) comportant l’année et le nom de l’éditeur
+--d’une part, associé au nom et email du(des) client(s) d’autre part ayant acheté le
+--plus de BD cette année-là chez cet éditeur.
+
+DROP TYPE IF EXISTS typeProcF  CASCADE;
+DROP FUNCTION IF EXISTS proc_f CASCADE; 
+
+
+CREATE TYPE typeProcF AS (         annee   varchar(4),
+                                   editeur varchar(23),
+                                   nom     varchar(11),
+                                   email   text        );
+
+
+CREATE OR REPLACE FUNCTION proc_f ( anneeAchat integer, nomEdit Editeur.nomEditeur%TYPE )
+    RETURNS setof typeProcF
+    AS $$
+
+DECLARE 
+    
+    sRet     typeProcF%ROWTYPE;
+
+    bds       BD%ROWTYPE;
+    series    Serie %ROWTYPE;
+    client    Client%ROWTYPE;
+    clientMax Client%ROWTYPE;
+    editeur   Editeur%ROWTYPE;
+
+    qa        Concerner.quantite%TYPE;
+    somQa     Concerner.quantite%TYPE;
+    maxQa     Concerner.quantite%TYPE;
+
+    
+BEGIN
+
+    SELECT * INTO editeur FROM Editeur WHERE nomEditeur = nomEdit;
+
+    IF ( NOT FOUND ) THEN
+        RAISE EXCEPTION 'Cet éditeur ne se trouve pas dans la BADO';
+    END IF;
+
+    maxQa = 0;
+    somQa = 0;
+    FOR client IN
+        SELECT * FROM Client
+    LOOP
+
+        FOR series IN
+            SELECT * FROM Serie WHERE Serie.numEditeur = editeur.numEditeur
+        LOOP
+
+            FOR bds IN
+                SELECT  * FROM BD WHERE BD.numSerie = series.numSerie
+            LOOP
+
+                SELECT Concerner.quantite
+                INTO   qa
+                FROM   Concerner NATURAL JOIN Vente
+                WHERE  Concerner.isbn                       = bds.isbn         and
+                       Vente.numClient                      = client.numClient and
+                       EXTRACT ( YEAR FROM Vente.dteVente ) = anneeAchat ;
+
+                IF ( FOUND ) THEN
+                    somQa = somQa + qa;
+                END IF;
+
+
+            END LOOP;
+
+        END LOOP;
+
+        IF (somQa > maxQa) THEN
+            clientMax = client;
+            maxQa     = somQa;
+        END IF;
+
+    END LOOP;  
+
+    sRet.annee   = anneeAchat;
+    sRet.editeur = nomEdit;
+    sRet.nom     = clientMax.nomClient;
+    sRet.email   = clientMax.mailClient;
+
+    IF ( clientMax is null ) THEN
+        RAISE EXCEPTION 'Aucun client on acheté chez % en %', nomEdit, anneeAchat;
+    END IF;
+
+    RETURN NEXT sRet;
+
+END
+$$ language plpgsql;
+
+/*
+=> \i procF.sql
+=> SELECT procF(2018, 'Lombard');
+
+              procf               
+----------------------------------
+ (2018,Lombard,Ohm,mail@odie.net)
+*/
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Ecrire une fonction qui supprime une vente dont l'identifiant est passé en
+-- paramètre.
+-- Vérifier d'abord que la vente associée à l'identifiant existe, si elle n'existe pas
+-- afficher un message d'erreur le mentionnant; si elle existe on la supprime.
+-- Cette suppression va générer une violation de clé étrangère dans la table
+-- ‘Concerner’.
+-- Pour gérer cela, on utilisera le code d'erreur FOREIGN_KEY_VIOLATION
+-- dans un bloc EXCEPTION dans lequel on supprimera tous les tuples de la table
+-- ‘Concerner’ qui possèdent ce numéro de vente, avant de supprimer la venet ellemême. On pourra au passage afficher aussi un message d'avertissement sur cette
+-- exception.
+
+DROP FUNCTION IF EXISTS procI CASCADE;
+
+
+CREATE OR REPLACE FUNCTION procI(idVente Vente.numVente%TYPE)
+RETURNS VOID AS
+$$
+BEGIN
+    PERFORM * FROM Vente WHERE Vente.numVente = idVente;
+    IF (NOT FOUND) THEN
+        RAISE EXCEPTION 'La vente n existe pas...';
+    END IF;
+    DELETE FROM Vente WHERE Vente.numVente = idVente;
+EXCEPTION
+    WHEN FOREIGN_KEY_VIOLATION
+    THEN
+        DELETE FROM Concerner WHERE Concerner.numVente = idVente;
+        DELETE FROM Vente     WHERE Vente.numVente     = idVente;
+END
+$$
+LANGUAGE Plpgsql;
+
+/*
+=> \i procI.sql
+=> SELECT procI(1);
+
+ proci 
+-------
+ 
+(1 ligne)
+*/
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--On souhaite classer tous les clients par leur quantité totale d'achats de BD. Ainsi
+--on veut associer à chaque client son rang de classement en tant qu'acheteur dans
+--l'ordre décroissant des quantités achetées. Ainsi le client de rang 1 (classé
+--premier) aura totalisé le plus grand nombre d'achats.
+--Vous devez donc créer un nouveau type de données ‘rangClient’, qui associe
+--l'identifiant du client, son nom et son classement dans les acheteurs (attribut
+--nommé ‘rang’).
+--Ecrire une fonction qui renvoie pour tous les clients, son identifiant, son nom et
+--son classement d'acheteur décrit ci-dessus.
+--NB : on pourra avantageusement utiliser une boucle FOR ou un curseur... 
+
+CREATE TYPE typeProcJ
+
+CREATE OR REPLACE FUNCTION 
+
+
 
 
 

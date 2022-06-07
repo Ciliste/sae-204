@@ -3,7 +3,7 @@
 --d’une part, associé au nom et email du(des) client(s) d’autre part ayant acheté le
 --plus de BD cette année-là chez cet éditeur. 
 DROP TYPE IF EXISTS typeProcF  CASCADE;
-DROP FUNCTION IF EXISTS proc_f CASCADE; 
+DROP FUNCTION IF EXISTS procF CASCADE;
 
 
 CREATE TYPE typeProcF AS (         annee   varchar(4),
@@ -12,7 +12,7 @@ CREATE TYPE typeProcF AS (         annee   varchar(4),
                                    email   text        );
 
 
-CREATE OR REPLACE FUNCTION proc_f ( anneeAchat integer, nomEdit Editeur.nomEditeur%TYPE )
+CREATE OR REPLACE FUNCTION procF ( anneeAchat integer, nomEdit Editeur.nomEditeur%TYPE )
     RETURNS setof typeProcF
     AS $$
 
@@ -89,3 +89,13 @@ BEGIN
 
 END
 $$ language plpgsql;
+
+SELECT procF(2018,'Lombard');
+
+/*
+\i procF.sql
+
+              procf               
+----------------------------------
+ (2018,Lombard,Ohm,mail@odie.net)
+*/
