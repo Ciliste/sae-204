@@ -665,8 +665,8 @@ CREATE TYPE rangClient AS (
     rang NUMERIC
 );
 
-DROP FUNCTION IF EXISTS procJBis CASCADE;
-CREATE OR REPLACE FUNCTION procJBis() 
+DROP FUNCTION IF EXISTS procJ CASCADE;
+CREATE OR REPLACE FUNCTION procJ() 
 RETURNS SETOF rangClient AS
 $$
 DECLARE
@@ -686,10 +686,9 @@ END
 $$
 LANGUAGE Plpgsql;
 
-SELECT * FROM procJBis();
-
 /*
-\i procJ.sql
+=> \i procJ.sql
+=> SELECT * FROM procJ();
 
  idclient |  nomclient  | rang 
 ----------+-------------+------
