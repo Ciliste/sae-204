@@ -4,61 +4,28 @@
 --le signaler par un messa  
 
 DROP FUNCTION IF EXISTS procE CASCADE;
-CREATE OR REPLACE FUNCTION procE ( nbBD Editeur.numEditeur%TYPE, annee Vente.dteVente%TYPE)
+CREATE OR REPLACE FUNCTION procE ( nbBD Editeur.numEditeur%TYPE, annee integer)
     RETURNS setof Editeur
     AS $$
 
 DECLARE
 
-    editeur 
+    edi Editeur%RAWTYPE;
 
 BEGIN
-
-
-
-    FOR editeur IN
-            SELECT *
-            FROM   Editeur
+    
+    FOR edi IN
+            SELECT  Editeur.*  
+            FROM    Editeur NATURAL JOIN Vente
+            WHERE   annee = EXTRACT( YEAR FROM Vente.dteVente) AND (SELECT     
+                                                                    FROM        
+                                                                    WHERE    )
     LOOP
-
-        
-        
-
+        RETURN NEXT edi;
     END LOOP;
 
     IF ( NOT FOUND ) THEN
         RAISE EXCEPTION 'aucun éditeur avec ce nombre de BD vendu cette année là';
     END IF;
-
-    aAchete = false;
-
-    FOR clients IN
-            SELECT *
-            FROM   Client
-    LOOP
-        FOR bds IN
-            SELECT  *
-            FROM    BD
-            WHERE   BD.numSerie = serie
-        LOOP
-            PERFORM Vente.numVente
-            FROM    Vente NATURAL JOIN Concerner
-            WHERE   isbn = bds.isbn and
-                    Vente.numClient = clients.numClient;
-
-            IF ( NOT FOUND ) THEN
-                aAchete = false;
-            END IF;
-            
-        END LOOP;
-
-        IF ( aAchete ) THEN
-            RETURN NEXT clients;
-        END IF;
-
-        aAchete = true;
-
-    END LOOP;
-        
 END
 $$ language plpgsql;
