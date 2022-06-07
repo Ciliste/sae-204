@@ -59,5 +59,13 @@ BEGIN
 END
 $$ language plpgsql;
 
+SELECT procD('Peter Pan');
 
+/* 
+\i procD.sql
+
+                    procd                     
+----------------------------------------------
+ (6,Timable,"06 56 53 01 40",mail@limelo.com)
+ */
 
