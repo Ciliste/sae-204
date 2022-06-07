@@ -259,9 +259,6 @@ LANGUAGE Plpgsql;
 --d’avertissement ‘Aucun client n’a acheté tous les exemplaires de la série %’, en
 --complétant le ‘ %’ par le nom de la série.
 
-DROP FUNCTION IF EXISTS procD() CASCADE;
-
-
 CREATE OR REPLACE FUNCTION procD ( nomS Serie.nomSerie%TYPE )
     RETURNS setof Client
     AS $$
@@ -271,7 +268,9 @@ DECLARE
     clients Client%ROWTYPE;
     bds     BD%ROWTYPE;
     serie   BD.numSerie%TYPE;
-    aAchete boolean;
+
+    aAchete  boolean;
+    unclient boolean;
 
 BEGIN
 
@@ -284,6 +283,7 @@ BEGIN
     END IF;
 
     aAchete = false;
+    unclient= false;
 
     FOR clients IN
             SELECT *
@@ -307,27 +307,31 @@ BEGIN
 
         IF ( aAchete ) THEN
             RETURN NEXT clients;
+            unclient = true;
         END IF;
 
         aAchete = true;
 
     END LOOP;
+
+    IF ( unclient ) THEN
+        RAISE NOTICE 'Aucun client n’a acheté tous les exemplaires de la série %', nomS;
+    END IF;
+
         
 END
 $$ language plpgsql;
 
-
-
 SELECT procD('Peter Pan');
 
 /* 
-=> \i procD.sql
-=> SELECT procD('Peter Pan');
+\i procD.sql
 
                     procd                     
 ----------------------------------------------
  (6,Timable,"06 56 53 01 40",mail@limelo.com)
-*/
+ */
+ 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Créer une fonction qui prend en paramètre un nombre nbBD de BD et une année
