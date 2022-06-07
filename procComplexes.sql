@@ -511,7 +511,7 @@ DROP TYPE IF EXISTS categClient CASCADE;
 CREATE TYPE categClient AS ( nomClient varchar(20), categ varchar(18) );
 
 
-
+-- Fonction intermédiaire pour obtenir le nombre d'achats d'un Client pour un éditeur spécifique
 CREATE OR REPLACE FUNCTION getNbAchatsClients( un_numClient Client.numClient%TYPE, un_nomEditeur Editeur.nomEditeur%TYPE )
     RETURNS numeric 
     AS $$
