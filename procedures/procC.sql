@@ -5,8 +5,8 @@
 -- message suivant « l’éditeur % n’a pas édité de BD des auteurs % et %» où on
 -- remplacera les « % » par les noms correspondants.
 
-DROP FUNCTION IF EXISTS procB CASCADE;
-CREATE OR REPLACE FUNCTION procB(
+DROP FUNCTION IF EXISTS procC CASCADE;
+CREATE OR REPLACE FUNCTION procC(
     nomEdit Editeur.nomEditeur%TYPE, 
     nomAuteurDessinateur Auteur.nomAuteur%TYPE,
     nomAuteurScenariste  Auteur.nomAuteur%TYPE)
@@ -91,10 +91,10 @@ END
 $$
 LANGUAGE Plpgsql;
 
-SELECT * FROM procB('Dargaud', 'Uderzo', 'Goscinny');
+SELECT * FROM procC('Dargaud', 'Uderzo', 'Goscinny');
 
 /*
-\i procB.sql
+\i procC.sql
 
        isbn        |                       titre                       | prixactuel | numtome | numserie | numauteurdessinateur | numauteurscenariste 
 -------------------+---------------------------------------------------+------------+---------+----------+----------------------+---------------------
