@@ -3,13 +3,13 @@
 --d’affaire réalisé par titre.
 
 DROP TYPE     IF EXISTS typeProcB CASCADE;
-DROP FUNCTION IF EXISTS proc_b    CASCADE;
+DROP FUNCTION IF EXISTS procB    CASCADE;
 
 CREATE TYPE typeProcB AS ( titre_serie     text,
                            quantite_vendue bigint,
                            CA              double precision );
 
-CREATE OR REPLACE FUNCTION proc_b  ( nomS Serie.nomSerie%TYPE )
+CREATE OR REPLACE FUNCTION procB  ( nomS Serie.nomSerie%TYPE )
     RETURNS setof typeProcB
     AS $$
 
@@ -42,5 +42,18 @@ BEGIN
 END
 $$ language plpgsql;
 
+select procB('Peter Pan');
 
+/*
+\i procB.sql
+
+          proc_b           
+---------------------------
+ ("Mains rouges",456,6384)
+ (Opikanoba,1345,18830)
+ (Crochet,780,10920)
+ (Londres,245,3430)
+ (Tempête,745,10430)
+ (Destins,406,5684)
+*/
 

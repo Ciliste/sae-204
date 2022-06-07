@@ -5,7 +5,7 @@
 --d’avertissement ‘Aucun client n’a acheté tous les exemplaires de la série %’, en
 --complétant le ‘ %’ par le nom de la série.
 
-CREATE OR REPLACE FUNCTION proc_d ( nomS Serie.nomSerie%TYPE )
+CREATE OR REPLACE FUNCTION procD ( nomS Serie.nomSerie%TYPE )
     RETURNS setof Client
     AS $$
 
